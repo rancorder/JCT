@@ -35,6 +35,24 @@ body.presenter {
   color: var(--ink-faint);
 }
 
+.open-audience-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--brass);
+  color: var(--bg);
+  border: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.open-audience-btn:hover {
+  background: var(--brass-soft);
+}
+
 .preview-frame-wrap {
   position: relative;
   width: 100%;

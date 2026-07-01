@@ -20,8 +20,6 @@ export const SLIDES = [
     layout: "cover",
     meta: {
       company: "有限会社ジェイシーティー",
-      target: "○○様", // 商談ごとに差し替え
-      date: "", // 商談ごとに差し替え（YYYY.MM.DD）
     },
     notes:
       "本日はお忙しい中、お時間をいただきありがとうございます。有限会社ジェイシーティーの〇〇と申します。\n" +

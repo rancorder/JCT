@@ -19,6 +19,11 @@
     <!-- 左：プレビュー＋タイマー＋クイックジャンプ -->
     <div class="preview-pane">
       <div class="pane-title">オーディエンス画面プレビュー（相手には見えません）</div>
+
+      <button class="open-audience-btn" id="openAudienceBtn" type="button">
+        顧客画面を開く（画面共有用）
+      </button>
+
       <div class="preview-frame-wrap" id="frameWrap">
         <iframe id="previewFrame" src="index.html" tabindex="-1"></iframe>
       </div>
@@ -81,6 +86,15 @@
     const slideCount = document.getElementById("slideCount");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
+    const openAudienceBtn = document.getElementById("openAudienceBtn");
+
+    // ---------- 顧客画面を開く ----------
+    // 同じウィンドウ名を指定することで、2回目以降のクリックは新規タブを増やさず
+    // 既存の顧客画面ウィンドウにフォーカスするだけになる。
+    openAudienceBtn.addEventListener("click", () => {
+      const audienceWin = window.open("index.html", "jct-audience-window");
+      if (audienceWin) audienceWin.focus();
+    });
 
     // ---------- クイックジャンプ生成 ----------
     SLIDES.forEach((s, i) => {

@@ -37,9 +37,7 @@ function renderBody(slide) {
           <div class="cover-rule"></div>
           <div class="cover-title">${esc(slide.title).replace(/\n/g, "<br/>")}</div>
           <div class="cover-meta">
-            <div class="meta-item"><span>対象企業</span>${esc(meta.target || "―")}</div>
             <div class="meta-item"><span>ご提供</span>${esc(meta.company || "―")}</div>
-            <div class="meta-item"><span>日付</span>${esc(meta.date || "―")}</div>
           </div>
         </div>`;
     }
