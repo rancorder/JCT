@@ -1,0 +1,576 @@
+/* styles.css
+   有限会社ジェイシーティー様｜プレ商談・1次商談 画面共有スライド
+   デザイン方針：espresso × navy × brass（差し色にvermilionを最小限）
+   見出し：Shippori Mincho／本文・UI：Noto Sans JP
+   シグネチャー要素：左端の「フェーズレール」＝場の定義／状況の言語化／選択肢の提示／次回への橋渡し
+   の4フェーズの中で今どこにいるかを、装飾ではなく実際の商談の構造として可視化する。
+*/
+
+:root {
+  --bg: #15110c;
+  --bg-canvas: #1a150f;
+  --panel: #221b13;
+  --panel-line: rgba(242, 235, 219, 0.1);
+  --navy: #1e2a3d;
+  --navy-soft: #2c3b52;
+  --brass: #c79a44;
+  --brass-soft: #e3c179;
+  --vermilion: #a8402a;
+  --ink: #f3ecdd;
+  --ink-dim: #b7ab93;
+  --ink-faint: #8a7d67;
+
+  --font-display: "Shippori Mincho", serif;
+  --font-body: "Noto Sans JP", sans-serif;
+
+  --canvas-w: 1280px;
+  --canvas-h: 720px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Stage / Canvas ---------- */
+
+.stage {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% -10%, #1f1810 0%, #120e09 70%);
+  overflow: hidden;
+}
+
+.slide-canvas {
+  position: relative;
+  width: var(--canvas-w);
+  height: var(--canvas-h);
+  max-width: 96vw;
+  max-height: 96vh;
+  aspect-ratio: 16 / 9;
+  background: var(--bg-canvas);
+  border: 1px solid var(--panel-line);
+  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.slide-canvas::before {
+  /* 極薄のノイズ／木目を思わせる縦のトーン。装飾は最小限に留める */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(199, 154, 68, 0.6) 0px,
+    rgba(199, 154, 68, 0.6) 1px,
+    transparent 1px,
+    transparent 90px
+  );
+}
+
+/* ---------- Phase Rail (signature element) ---------- */
+
+.phase-rail {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  display: flex;
+  flex-direction: column;
+  z-index: 3;
+}
+
+.phase-rail .seg {
+  flex: 1;
+  background: rgba(242, 235, 219, 0.07);
+  border-bottom: 1px solid var(--bg-canvas);
+  position: relative;
+  transition: background 0.5s ease;
+}
+
+.phase-rail .seg:last-child {
+  border-bottom: none;
+}
+
+.phase-rail .seg.active {
+  background: var(--brass);
+}
+
+.phase-rail .seg .seg-label {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.phase-rail .seg.active .seg-label {
+  color: var(--brass-soft);
+  opacity: 1;
+}
+
+/* ---------- Header ---------- */
+
+.slide-inner {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 52px 72px 40px 86px;
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: var(--brass);
+  font-weight: 500;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 1px;
+  background: var(--brass);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 44px;
+  line-height: 1.35;
+  color: var(--ink);
+  white-space: pre-line;
+  margin: 0 0 28px 0;
+  max-width: 900px;
+}
+
+.slide-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.footnote {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--brass-soft);
+  font-style: normal;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--panel-line);
+}
+
+/* ---------- Footer ---------- */
+
+.slide-footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 72px 28px 86px;
+}
+
+.progress-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.progress-dots .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(242, 235, 219, 0.18);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.progress-dots .dot.active {
+  background: var(--brass);
+  transform: scale(1.35);
+}
+
+.wordmark {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+}
+
+/* ---------- Layout: cover ---------- */
+
+.layout-cover {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.layout-cover .cover-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 56px;
+  line-height: 1.4;
+  color: var(--ink);
+  white-space: pre-line;
+  margin-bottom: 34px;
+}
+
+.layout-cover .cover-meta {
+  display: flex;
+  gap: 28px;
+  font-size: 15px;
+  color: var(--ink-dim);
+}
+
+.layout-cover .cover-meta .meta-item span {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+
+.layout-cover .cover-rule {
+  width: 64px;
+  height: 2px;
+  background: var(--brass);
+  margin-bottom: 28px;
+}
+
+/* ---------- Layout: statement ---------- */
+
+.layout-statement .points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.layout-statement .points li {
+  font-size: 24px;
+  line-height: 1.6;
+  color: var(--ink);
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.layout-statement .points li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brass);
+  flex-shrink: 0;
+  transform: translateY(-2px);
+}
+
+/* ---------- Layout: cards ---------- */
+
+.layout-cards .card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.card {
+  border: 1px solid var(--panel-line);
+  background: var(--panel);
+  padding: 22px 24px;
+  border-radius: 2px;
+  border-left: 3px solid var(--navy-soft);
+}
+
+.card .card-label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--brass-soft);
+  margin-bottom: 8px;
+}
+
+.card .card-body {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* ---------- Layout: dual-track ---------- */
+
+.layout-dual-track .tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+}
+
+.track:first-child {
+  border-left: 3px solid var(--navy-soft);
+}
+
+.track:last-child {
+  border-left: 3px solid var(--brass);
+}
+
+.track .track-label {
+  font-size: 19px;
+  color: var(--ink);
+  font-weight: 500;
+  min-width: 220px;
+}
+
+.track .track-state {
+  font-size: 15px;
+  color: var(--brass-soft);
+  letter-spacing: 0.04em;
+}
+
+.track-plus {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--ink-faint);
+  margin: -6px 0 10px 0;
+}
+
+.layout-dual-track .body-text {
+  font-size: 19px;
+  line-height: 1.7;
+  color: var(--ink-dim);
+  max-width: 760px;
+}
+
+/* ---------- Layout: list ---------- */
+
+.layout-list .plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.layout-list .plain-list li {
+  font-size: 21px;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.layout-list .plain-list li .num {
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: var(--brass);
+  min-width: 22px;
+}
+
+/* ---------- Layout: quadrant ---------- */
+
+.layout-quadrant .quad-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 14px;
+}
+
+.quad-item {
+  padding: 20px 22px;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.quad-item .quad-label {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.quad-item .quad-body {
+  font-size: 14px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+
+/* ---------- Layout: steps ---------- */
+
+.layout-steps .step-flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.step-flow .step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 130px;
+}
+
+.step-flow .step .step-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--brass);
+  color: var(--brass-soft);
+  font-family: var(--font-display);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-flow .step .step-label {
+  font-size: 15px;
+  color: var(--ink);
+  text-align: center;
+}
+
+.step-flow .arrow {
+  color: var(--ink-faint);
+  font-size: 18px;
+  margin: 0 8px;
+  transform: translateY(-16px);
+}
+
+/* ---------- Layout: checklist ---------- */
+
+.layout-checklist .check-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.check-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.check-list li .box {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--brass);
+  transform: translateY(3px);
+}
+
+/* ---------- Layout: action ---------- */
+
+.layout-action .action-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.action-list li {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  font-size: 21px;
+  color: var(--ink);
+}
+
+.action-list li .action-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--bg);
+  background: var(--brass);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ---------- Transition ---------- */
+
+.fade-enter {
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Responsive scaling note ----------
+   会場PCの解像度に応じて .slide-canvas は max-width/max-height で自動縮小。
+   フォントサイズはcanvas基準(1280x720)で調整済みのため、極端に小さい画面では
+   別途 body { zoom } 等の調整が必要な場合がある。
+*/

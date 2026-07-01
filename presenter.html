@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>プレゼンター｜有限会社ジェイシーティー様 プレ商談</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="presenter.css" />
+</head>
+<body class="presenter">
+  <div class="presenter-shell">
+
+    <!-- 左：プレビュー＋タイマー＋クイックジャンプ -->
+    <div class="preview-pane">
+      <div class="pane-title">オーディエンス画面プレビュー（相手には見えません）</div>
+      <div class="preview-frame-wrap" id="frameWrap">
+        <iframe id="previewFrame" src="index.html" tabindex="-1"></iframe>
+      </div>
+
+      <div class="timer-box">
+        <div class="timer-value" id="timerValue">00:00</div>
+        <div class="timer-controls">
+          <button id="timerStart" type="button">開始</button>
+          <button id="timerReset" type="button">リセット</button>
+        </div>
+      </div>
+
+      <div class="pane-title">スライド一覧</div>
+      <div class="jump-grid" id="jumpGrid"></div>
+    </div>
+
+    <!-- 右：台本・キュー -->
+    <div class="notes-pane">
+      <div class="notes-eyebrow" id="notesEyebrow"></div>
+      <div class="notes-title" id="notesTitle"></div>
+
+      <div class="notes-block">
+        <h4>話す内容（台本）</h4>
+        <div class="notes-text" id="notesScript"></div>
+      </div>
+
+      <div class="notes-block">
+        <h4>キュー・分岐対応</h4>
+        <ul class="cues-list" id="notesCues"></ul>
+      </div>
+    </div>
+
+    <!-- 下：進行操作 -->
+    <div class="transport">
+      <div class="slide-count" id="slideCount">01 / 10</div>
+      <div class="transport-buttons">
+        <button class="nav-btn" id="prevBtn" type="button">← 前へ</button>
+        <button class="nav-btn" id="nextBtn" type="button">次へ →</button>
+      </div>
+      <div class="hint">← → または Space でも操作できます</div>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { SLIDES, PHASES } from "./slides-data.js";
+
+    const channel = new BroadcastChannel("jct-preslide-sync");
+    let currentIndex = 0;
+    const total = SLIDES.length;
+
+    // ---------- 参照 ----------
+    const frameWrap = document.getElementById("frameWrap");
+    const previewFrame = document.getElementById("previewFrame");
+    const jumpGrid = document.getElementById("jumpGrid");
+    const notesEyebrow = document.getElementById("notesEyebrow");
+    const notesTitle = document.getElementById("notesTitle");
+    const notesScript = document.getElementById("notesScript");
+    const notesCues = document.getElementById("notesCues");
+    const slideCount = document.getElementById("slideCount");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    // ---------- クイックジャンプ生成 ----------
+    SLIDES.forEach((s, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = String(s.id).padStart(2, "0");
+      btn.dataset.phase = s.phase;
+      btn.addEventListener("click", () => goTo(i));
+      jumpGrid.appendChild(btn);
+    });
+
+    function updateJumpGrid() {
+      Array.from(jumpGrid.children).forEach((btn, i) => {
+        btn.classList.toggle("active", i === currentIndex);
+      });
+    }
+
+    // ---------- 台本パネル更新 ----------
+    function renderNotesPane() {
+      const slide = SLIDES[currentIndex];
+      notesEyebrow.textContent = slide.eyebrow;
+      notesTitle.textContent = slide.title;
+      notesScript.textContent = slide.notes || "（台本メモなし）";
+
+      notesCues.innerHTML = "";
+      (slide.cues || []).forEach((cue) => {
+        const li = document.createElement("li");
+        li.textContent = cue;
+        notesCues.appendChild(li);
+      });
+
+      slideCount.textContent = `${String(slide.id).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === total - 1;
+      updateJumpGrid();
+    }
+
+    // ---------- ナビゲーション ----------
+    function goTo(index) {
+      currentIndex = Math.max(0, Math.min(index, total - 1));
+      renderNotesPane();
+      channel.postMessage({ type: "goto", index: currentIndex });
+    }
+
+    prevBtn.addEventListener("click", () => goTo(currentIndex - 1));
+    nextBtn.addEventListener("click", () => goTo(currentIndex + 1));
+
+    window.addEventListener("keydown", (ev) => {
+      if (ev.key === "ArrowRight" || ev.key === " ") {
+        ev.preventDefault();
+        goTo(currentIndex + 1);
+      } else if (ev.key === "ArrowLeft") {
+        ev.preventDefault();
+        goTo(currentIndex - 1);
+      }
+    });
+
+    // オーディエンス側（index.html）が後から開かれた場合に現在地を問い合わせてくる
+    channel.onmessage = (ev) => {
+      if (ev.data && ev.data.type === "requestState") {
+        channel.postMessage({ type: "goto", index: currentIndex });
+      }
+    };
+
+    // ---------- 初期化 ----------
+    renderNotesPane();
+    previewFrame.addEventListener("load", () => {
+      channel.postMessage({ type: "goto", index: currentIndex });
+    });
+
+    // ---------- プレビューiframeのスケーリング ----------
+    function scalePreview() {
+      const w = frameWrap.clientWidth;
+      const scale = w / 1280;
+      previewFrame.style.transform = `scale(${scale})`;
+    }
+    window.addEventListener("resize", scalePreview);
+    scalePreview();
+
+    // ---------- タイマー ----------
+    const timerValue = document.getElementById("timerValue");
+    const timerStart = document.getElementById("timerStart");
+    const timerReset = document.getElementById("timerReset");
+    let elapsedMs = 0;
+    let timerInterval = null;
+    let running = false;
+
+    function formatTime(ms) {
+      const totalSec = Math.floor(ms / 1000);
+      const m = String(Math.floor(totalSec / 60)).padStart(2, "0");
+      const s = String(totalSec % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    let lastTick = null;
+    function tick() {
+      const now = Date.now();
+      elapsedMs += now - lastTick;
+      lastTick = now;
+      timerValue.textContent = formatTime(elapsedMs);
+    }
+
+    timerStart.addEventListener("click", () => {
+      if (!running) {
+        running = true;
+        lastTick = Date.now();
+        timerInterval = setInterval(tick, 1000);
+        timerStart.textContent = "一時停止";
+      } else {
+        running = false;
+        clearInterval(timerInterval);
+        timerStart.textContent = "開始";
+      }
+    });
+
+    timerReset.addEventListener("click", () => {
+      running = false;
+      clearInterval(timerInterval);
+      elapsedMs = 0;
+      timerValue.textContent = "00:00";
+      timerStart.textContent = "開始";
+    });
+  </script>
+</body>
+</html>
