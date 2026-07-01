@@ -200,6 +200,16 @@ body {
   border-top: 1px solid var(--panel-line);
 }
 
+/* Slide6の5〜10%削減など、主訴求ではなく補足として扱う数値表現用。
+   通常のfootnoteより明確に控えめにする（小さく・目立たせない）。 */
+.footnote-supplement {
+  font-size: 13px;
+  color: var(--ink-faint);
+  border-top: none;
+  margin-top: 18px;
+  padding-top: 0;
+}
+
 /* ---------- Footer ---------- */
 
 .slide-footer {
@@ -463,7 +473,8 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  min-width: 130px;
+  min-width: 168px;
+  max-width: 190px;
 }
 
 .step-flow .step .step-num {
@@ -480,7 +491,8 @@ body {
 }
 
 .step-flow .step .step-label {
-  font-size: 15px;
+  font-size: 14px;
+  line-height: 1.4;
   color: var(--ink);
   text-align: center;
 }

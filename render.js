@@ -127,6 +127,7 @@ function renderBody(slide) {
           <div class="slide-body layout-quadrant">
             <div class="quad-grid">${quad}</div>
           </div>
+          ${slide.footnote ? `<div class="footnote footnote-supplement">${esc(slide.footnote)}</div>` : ""}
         </div>`;
     }
     case "steps": {
